@@ -68,13 +68,20 @@ jobs:
           echo "BUMP=$BUMP" >> $GITHUB_ENV
           echo "Bump type: $BUMP"
 
-      # Generate changelog (no commit)
+      # Generate changelog
       - name: Generate changelog
         if: env.RELEASE == 'true'
         run: |
           git-cliff -o CHANGELOG.md --tag v$(cargo pkgid | cut -d# -f2 | cut -d: -f2) || true
 
-      # Cargo release fully automated
+      # Stage and commit generated files
+      - name: Commit changelog & lockfile
+        if: env.RELEASE == 'true'
+        run: |
+          git add CHANGELOG.md Cargo.lock || true
+          git diff --cached --quiet || git commit -m "chore: update changelog and lockfile [skip ci]"
+
+      # Cargo release
       - name: Cargo release
         if: env.RELEASE == 'true'
         env:
@@ -84,7 +91,6 @@ jobs:
           cargo release $BUMP \
             --no-confirm \
             --execute \
-            --allow-dirty \
             --push \
             --tag-name "v{{version}}" \
             --no-dev-version
