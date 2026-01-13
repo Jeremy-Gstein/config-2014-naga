@@ -62,24 +62,13 @@ jobs:
           
       - name: Install release tools
         if: env.RELEASE == 'true'
-        run: |
-          cargo install cargo-release --locked
-          cargo install git-cliff --locked
+        run: cargo install cargo-release --locked
           
       - name: Configure git
         if: env.RELEASE == 'true'
         run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          
-      - name: Generate changelog
-        if: env.RELEASE == 'true'
-        run: |
-          VERSION=$(cargo pkgid | cut -d# -f2 | cut -d: -f2)
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-          git-cliff -o CHANGELOG.md --tag "v$VERSION" || true
-          git add CHANGELOG.md Cargo.lock || true
-          git diff --cached --quiet || git commit -m "chore: update changelog [skip ci]"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
       - name: Cargo release
         if: env.RELEASE == 'true'
@@ -92,6 +81,12 @@ jobs:
             --push \
             --tag-name "v{{version}}"
             
+      - name: Get new version
+        if: env.RELEASE == 'true'
+        run: |
+          VERSION=$(cargo pkgid | cut -d# -f2 | cut -d: -f2)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          
       - name: Build release binary
         if: env.RELEASE == 'true'
         run: cargo build --release
