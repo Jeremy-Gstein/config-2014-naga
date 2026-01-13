@@ -1,6 +1,6 @@
 [package]
 name = "config-2014-naga"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Jeremy-Gstein <jeremy51b5@pm.me>"]
 license = "MIT"
 keywords = ["razer", "naga"]
