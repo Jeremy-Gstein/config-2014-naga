@@ -1,0 +1,104 @@
+name: CI + Release
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install system deps
+        run: |
+          sudo apt update
+          sudo apt install -y libudev-dev
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install release tools
+        run: |
+          cargo install cargo-release
+          cargo install git-cliff
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+      
+      # Build step (always)
+      - name: Build
+        run: cargo build
+
+      
+      # Detect [release] commit
+      - name: Check for release
+        id: release_check
+        run: |
+          MSG=$(git log -1 --pretty=%B)
+          echo "COMMIT_MSG=$MSG" >> $GITHUB_ENV
+          if echo "$MSG" | grep -q "\[release\]"; then
+            echo "RELEASE=true" >> $GITHUB_ENV
+          else
+            echo "RELEASE=false" >> $GITHUB_ENV
+          fi
+
+      
+      # Determine bump type
+      - name: Determine version bump
+        if: env.RELEASE == 'true'
+        id: bump
+        run: |
+          MSG="$COMMIT_MSG"
+          # default to patch
+          BUMP=patch
+          if echo "$MSG" | grep -qi "^feat"; then
+            BUMP=minor
+          fi
+          if echo "$MSG" | grep -qi "BREAKING CHANGE"; then
+            BUMP=major
+          fi
+          echo "BUMP=$BUMP" >> $GITHUB_ENV
+          echo "Bump type: $BUMP"
+
+      
+      # Generate changelog
+      - name: Generate changelog
+        if: env.RELEASE == 'true'
+        run: |
+          git-cliff -o CHANGELOG.md --tag v$(cargo pkgid | cut -d# -f2 | cut -d: -f2) || true
+
+      
+      # Release
+      - name: Cargo release
+        if: env.RELEASE == 'true'
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: |
+          echo "Running cargo release $BUMP"
+          cargo release $BUMP --no-confirm --execute
+
+      
+      # Build release binary
+      - name: Build release binary
+        if: env.RELEASE == 'true'
+        run: cargo build --release
+
+      
+      # GitHub Release
+      - name: Create GitHub Release
+        if: env.RELEASE == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: target/release/razer-naga-2014-key-remap
