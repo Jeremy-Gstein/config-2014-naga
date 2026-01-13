@@ -76,6 +76,7 @@ jobs:
         if: env.RELEASE == 'true'
         run: |
           VERSION=$(cargo pkgid | cut -d# -f2 | cut -d: -f2)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
           git-cliff -o CHANGELOG.md --tag "v$VERSION" || true
           git add CHANGELOG.md Cargo.lock || true
           git diff --cached --quiet || git commit -m "chore: update changelog [skip ci]"
