@@ -4,10 +4,6 @@
 
 - Add ci workflow
 - Publish crate and test ci [release]
-- Publish crate and test ci [release]
-- Publish crate and test ci [release]
-- Publish crate and test ci [release]
-- Publish crate and test ci [release]
 
 ### ⚙️ Miscellaneous Tasks
 
