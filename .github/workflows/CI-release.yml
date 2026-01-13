@@ -36,12 +36,10 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
-      
       # Build step (always)
       - name: Build
         run: cargo build
 
-      
       # Detect [release] commit
       - name: Check for release
         id: release_check
@@ -54,14 +52,12 @@ jobs:
             echo "RELEASE=false" >> $GITHUB_ENV
           fi
 
-      
       # Determine bump type
       - name: Determine version bump
         if: env.RELEASE == 'true'
         id: bump
         run: |
           MSG="$COMMIT_MSG"
-          # default to patch
           BUMP=patch
           if echo "$MSG" | grep -qi "^feat"; then
             BUMP=minor
@@ -72,33 +68,35 @@ jobs:
           echo "BUMP=$BUMP" >> $GITHUB_ENV
           echo "Bump type: $BUMP"
 
-      
-      # Generate changelog
+      # Generate changelog (no commit)
       - name: Generate changelog
         if: env.RELEASE == 'true'
         run: |
           git-cliff -o CHANGELOG.md --tag v$(cargo pkgid | cut -d# -f2 | cut -d: -f2) || true
 
-      
-      # Release
+      # Cargo release fully automated
       - name: Cargo release
         if: env.RELEASE == 'true'
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
         run: |
           echo "Running cargo release $BUMP"
-          cargo release $BUMP --no-confirm --execute
+          cargo release $BUMP \
+            --no-confirm \
+            --execute \
+            --allow-dirty \
+            --push \
+            --tag-name "v{{version}}" \
+            --no-dev-version
 
-      
       # Build release binary
       - name: Build release binary
         if: env.RELEASE == 'true'
         run: cargo build --release
 
-      
       # GitHub Release
       - name: Create GitHub Release
         if: env.RELEASE == 'true'
         uses: softprops/action-gh-release@v2
         with:
-          files: target/release/razer-naga-2014-key-remap
+          files: target/release/config-2014-naga
