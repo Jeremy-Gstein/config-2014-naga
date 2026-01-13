@@ -41,6 +41,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4785bdd1c96b2a846b2bd7cc02e86b6b3dbf14e7e53446c4f54c92a361040822"
 
 [[package]]
+name = "config-2014-naga"
+version = "0.1.1"
+dependencies = [
+ "evdev-rs",
+ "serde",
+ "toml",
+ "uinput",
+]
+
+[[package]]
 name = "custom_derive"
 version = "0.1.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -184,16 +194,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dc74d9a594b72ae6656596548f56f667211f8a97b3d4c3d467150794690dc40a"
 dependencies = [
  "proc-macro2",
-]
-
-[[package]]
-name = "razer-naga-2014-key-remap"
-version = "1.0.0"
-dependencies = [
- "evdev-rs",
- "serde",
- "toml",
- "uinput",
 ]
 
 [[package]]
