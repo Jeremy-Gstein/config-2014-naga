@@ -10,6 +10,14 @@ repository = "https://github.com/Jeremy-Gstein/config-2014-naga"
 homepage = "https://github.com/Jeremy-Gstein/config-2014-naga"
 description = "2014 razer naga key mapper for linux - a way to configure side buttons 1-12"
 
+[lib]
+name = "config_2014_naga"
+path = "src/lib.rs"
+
+[[bin]]
+name = "config-2014-naga"
+path = "src/main.rs"
+
 [dependencies]
 evdev-rs = "0.2"
 uinput = "0.1"

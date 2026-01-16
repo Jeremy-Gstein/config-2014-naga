@@ -1,4 +1,4 @@
-//! Config 2014 Naga - Linux Key Mapper tool
+//! Config 2014 Naga - Linux CLI tool
 //!
 //! Maps the 12 side buttons on the Razer Naga 2014 mouse to configurable keyboard keys.
 //!
@@ -27,11 +27,7 @@
 use std::time::Duration;
 use std::{env, thread};
 use std::error::Error;
-
-mod event_mapper;
-mod input_device;
-mod key_map;
-mod naga;
+use config_2014_naga::{event_mapper, input_device, key_map, naga};
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 const NAME: &str = env!("CARGO_PKG_NAME");

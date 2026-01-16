@@ -1,5 +1,5 @@
-use super::key_map::KeyMapper;
-use super::naga::Naga;
+use crate::key_map::KeyMapper;
+use crate::naga::Naga;
 use evdev_rs::enums::EventCode::{EV_KEY, EV_SYN};
 use evdev_rs::InputEvent;
 use uinput::device::Device;
