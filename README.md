@@ -1,4 +1,10 @@
 # config-2014-naga 
+[![CI + Release](https://github.com/Jeremy-Gstein/config-2014-naga/actions/workflows/CI-release.yml/badge.svg?branch=main)](https://github.com/Jeremy-Gstein/config-2014-naga/actions/workflows/CI-release.yml)
+[![Crates.io Version](https://img.shields.io/crates/v/config-2014-naga)](https://crates.io/crates/config-2014-naga)
+[![docs.rs](https://img.shields.io/docsrs/config-2014-naga)](https://docs.rs/config-2014-naga)
+![Crates.io Size](https://img.shields.io/crates/size/config-2014-naga)
+![Deps.rs Crate Dependencies (latest)](https://img.shields.io/deps-rs/config-2014-naga/latest)
+![Crates.io License](https://img.shields.io/crates/l/config-2014-naga)
 
 A Linux utility written in Rust to remap all 12 side buttons on the Razer Naga 2014 mouse to configurable keyboard and numpad keys.
 
