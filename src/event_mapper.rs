@@ -5,6 +5,19 @@ use evdev_rs::InputEvent;
 use uinput::device::Device;
 use uinput::Error;
 
+macro_rules! debug_println {
+    ($($arg:tt)*) => {
+        {
+            #[cfg(debug_assertions)]
+            {
+                eprintln!($($arg)*);
+            }
+        }
+    };
+}
+
+
+
 pub fn map_events(
     key_mapper: KeyMapper,
     naga: Naga,
@@ -19,7 +32,6 @@ pub fn map_events(
             .map_err(|e| format!("Process event error: {}", e))?
     }
 }
-
 fn process_event(
     key_mapper: KeyMapper,
     event: InputEvent,
@@ -38,11 +50,28 @@ fn process_event(
             
             if let Some(index) = key_index {
                 if let Some(mapped_key) = key_mapper.keys.get(index).copied() {
+                    #[cfg(debug_assertions)]
+                    let action = match event.value {
+                        1 => "PRESSED",
+                        0 => "RELEASED",
+                        _ => "UNKNOWN",
+                    };
+                    
+                    debug_println!(
+                        "Button {} (index {}) {} -> Key: {}",
+                        index + 1,
+                        index,
+                        action,
+                        mapped_key.debug_name()
+                    );
+                    
                     match event.value {
                         1 => input_device.press(&mapped_key)?,
                         0 => input_device.release(&mapped_key)?,
                         _ => (),
                     }
+                } else {
+                    debug_println!("No mapped key for button {} (index {})", index + 1, index);
                 }
             }
         }

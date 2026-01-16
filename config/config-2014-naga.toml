@@ -1,0 +1,49 @@
+#############################
+# CONFIG 2014 NAGA SETTINGS #
+#############################
+# Set specified values useing the allowed keys mentioned below along with an example.
+# This is the default mapping:
+#     [keys]
+#     1 = '_1'
+#     2 = '_2'
+#     3 = '_3'
+#     4 = '_4'
+#     5 = '_5'
+#     6 = '_6'
+#     7 = '_7'
+#     8 = '_8'
+#     9 = '_9'
+#     10 ='_0'
+#     11 ='Minus'
+#     12 ='Equal'
+# -------------------------------------------------------------------------------------
+# Valid key values are:
+# Esc, F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12,
+# (keyboard 1-0)
+# Grave, _1, _2, _3, _4, _5, _6, _7, _8, _9, _0, Minus, _Equal, BackSpace,
+# Tab, Q, W, E, R, T, Y, U, I, O, P, LeftBrace, RightBrace, BackSlash,
+# CapsLock, A, S, D, F, G, H, J, K, L, SemiColon, Apostrophe, Enter
+# LeftShift, Z, X, C, V, B, N, M, Comma, Dot, Slash, RightShift
+# LeftControl, LeftMeta, LeftAlt, Space, RightAlt, RightMeta, RightControl
+# SysRq, ScrollLock, Insert, Home, PageUp, Delete, End, PageDown
+# Up, Left, Down, Right, NumLock, LineFeed, ScrollUp, ScrollDown,
+# F13, F14, F15, F16, F17, F18, F19, F20, F21, F22, F23, F24
+# NUMPAD - Override to force keypad/numpab by prefixing with `KP::`
+# KP::_7, KP::_8, KP::_9, KP::Minus, KP::_4, KP::_5, KP::_6, KP::Plus
+# KP::_1, KP::_2, KP::_3, KP::Enter, KP::_0, KP::Dot
+# KP::AltComma, KP::Equal, KP::PlusMinus, KP::Slash, KP::Asterisk
+# KP::Comma, KP::LeftParen, KP::RightParen
+# -------------------------------------------------------------------------------------
+[keys]
+1 = 'KP::_1'
+2 = 'KP::_2'
+3 = 'KP::_3'
+4 = 'KP::_4'
+5 = 'KP::_5'
+6 = 'KP::_6'
+7 = 'KP::_7'
+8 = 'KP::_8'
+9 = 'KP::_9'
+10 = 'KP::_0'
+11 = 'KP::Dot'
+12 = 'KP::Equal'

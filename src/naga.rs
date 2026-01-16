@@ -26,13 +26,6 @@ impl Naga {
 
             let mut device = Device::new_from_fd(file)?;
 
-            // let mut device = match Device::new_from_fd(file) {
-            //     Ok(d) => d,
-            //     Err(_) => {
-            //         continue;
-            //     }
-            // };
-            //
             if device.name().unwrap_or("").eq("Razer Razer Naga 2014")
                 && device.phys().unwrap_or("").ends_with("/input2")
             {

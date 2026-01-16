@@ -1,3 +1,8 @@
+//! Key mapping configuration and TOML deserialization.
+//!
+//! Defines the key mapping structure and handles loading custom
+//! mappings from TOML configuration files.
+
 use serde::{de::Error, Deserialize};
 use std::ffi::c_int;
 use std::fs;
@@ -8,6 +13,10 @@ use uinput::event::{
 };
 use uinput::event::{Code, Kind, Press};
 
+/// Configuration for mapping Naga side buttons to keyboard keys.
+///
+/// Stores the mapping for all 12 side buttons (indices 0-11).
+/// Default mapping is keys 1-0, Minus, and Equal.
 #[derive(Copy, Clone)]
 pub struct KeyMapper {
     pub(crate) keys: [Input; 12],
@@ -33,6 +42,25 @@ impl Default for KeyMapper {
     }
 }
 impl KeyMapper {
+    /// Loads key mappings from a TOML configuration file.
+    ///
+    /// # Arguments
+    ///
+    /// * `path` - Path to the TOML config file
+    ///
+    /// # Returns
+    ///
+    /// * `Ok(KeyMapper)` - Successfully loaded configuration
+    /// * `Err(String)` - Failed to read or parse the file
+    ///
+    /// # Example Config
+    ///
+    /// ```toml
+    /// [keys]
+    /// "1" = "F1"
+    /// "2" = "F2"
+    /// "6" = "KP::_1"
+    /// ```
     pub fn read_from_file(path: &str) -> Result<KeyMapper, String> {
         let contents = read_file_contents(path)?;
         let config: Config = toml::from_str(contents.as_str()).map_err(|e| format!("{}", e))?;
@@ -53,6 +81,16 @@ impl KeyMapper {
         }
 
         Ok(key_mapper)
+    }
+
+    #[cfg(debug_assertions)]
+    pub fn debug_mappings(&self) -> String {
+        let mut result = String::new();
+        for (idx, key) in self.keys.iter().enumerate() {
+            result.push_str(&format!("  Button {} (index {}) -> {}\n", 
+                idx + 1, idx, key.debug_name()));
+        }
+        result
     }
 }
 
@@ -89,6 +127,15 @@ impl Code for Input {
         }
     }
 }
+impl Input {
+    #[cfg(debug_assertions)]
+    pub fn debug_name(&self) -> String {
+        match self {
+            Input::InputKey(k) => k.debug_name(),
+            Input::InputKeyPad(kp) => kp.debug_name(),
+        }
+    }
+}
 impl From<Key> for Input {
     fn from(value: Key) -> Self {
         Self::InputKey(InputKey(value))
@@ -107,6 +154,12 @@ impl Deref for InputKey {
 
     fn deref(&self) -> &Self::Target {
         &self.0
+    }
+}
+impl InputKey {
+    #[cfg(debug_assertions)]
+    pub fn debug_name(&self) -> String {
+        format!("{:?}", self.0)
     }
 }
 impl<'de> Deserialize<'de> for InputKey {
@@ -234,6 +287,12 @@ impl Deref for InputKeyPad {
 
     fn deref(&self) -> &Self::Target {
         &self.0
+    }
+}
+impl InputKeyPad {
+    #[cfg(debug_assertions)]
+    pub fn debug_name(&self) -> String {
+        format!("KP::{:?}", self.0)
     }
 }
 impl<'de> Deserialize<'de> for InputKeyPad {
