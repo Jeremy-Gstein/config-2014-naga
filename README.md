@@ -14,7 +14,6 @@ A Linux utility written in Rust to remap all 12 side buttons on the Razer Naga 2
 - Configurable via TOML files
 - Default mapping to number row (1-0, minus, equal)
 - Debug mode for troubleshooting
-- Zero-overhead release builds
 
 ## Install
 ### [crates.io](https://crates.io/crates/config-2014-naga)
