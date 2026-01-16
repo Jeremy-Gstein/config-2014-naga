@@ -4,11 +4,13 @@ version = "0.2.2"
 authors = ["Jeremy-Gstein <jeremy51b5@pm.me>"]
 edition = "2021"
 license = "MIT"
-keywords = ["razer", "naga", "keybinding", "keymapper", "linux"]
-readme = "README.md"
+description = "2014 razer naga key mapper for linux - a way to configure side buttons 1-12"
 repository = "https://github.com/Jeremy-Gstein/config-2014-naga"
 homepage = "https://github.com/Jeremy-Gstein/config-2014-naga"
-description = "2014 razer naga key mapper for linux - a way to configure side buttons 1-12"
+documentation = "https://docs.rs/config-2014-naga"
+readme = "README.md"
+categories = ["hardware-support"]
+keywords = ["razer", "naga", "keybinding", "keymapper", "linux"]
 
 [lib]
 name = "config_2014_naga"
