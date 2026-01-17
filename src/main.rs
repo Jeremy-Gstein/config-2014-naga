@@ -24,10 +24,9 @@
 //! "3" = "LeftShift"
 //! ```
 
-use std::time::Duration;
-use std::{env, thread};
+use std::env;
 use std::error::Error;
-use config_2014_naga::{event_mapper, input_device, key_map, naga};
+use config_2014_naga::{key_map::KeyMapper, run_loop_blocking};
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 const NAME: &str = env!("CARGO_PKG_NAME");
@@ -43,15 +42,6 @@ macro_rules! debug_println {
     };
 }
 
-macro_rules! error_println {
-    ($($arg:tt)*) => {
-        {
-            eprintln!($($arg)*);
-        }
-    };
-}
-
-
 fn main() -> Result<(), Box<dyn Error>> {
     println!("{}-v{}", NAME, VERSION);
 
@@ -59,38 +49,17 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let (key_mapper, config_source) = match args.len() {
         2 => {
-            let mapper = key_map::KeyMapper::read_from_file(args[1].as_str())?;
+            let mapper = KeyMapper::read_from_file(&args[1])?;
             (mapper, format!("file: {}", args[1]))
         },
-        1 => (key_map::KeyMapper::default(), "default".to_string()),
-        _ => {
-            return Err("Too many arguments")?;
-        }
+        1 => (KeyMapper::default(), "default".to_string()),
+        _ => return Err("Too many arguments".into()),
     };
 
     println!("Configuration loaded from: {}", config_source);
     debug_println!("\nKey mappings:");
     debug_println!("{}", key_mapper.debug_mappings());
 
-    let mut device = input_device::create()?;
-
-    loop {
-        let naga = naga::Naga::new();
-
-        match naga {
-            Ok(dev) => {
-                println!("Attached to naga");
-                let res = event_mapper::map_events(key_mapper, dev, &mut device);
-                if let Err(e) = res {
-                    error_println!("Error mapping events: {}", e);
-                } else {
-                    debug_println!("Map events returned Ok which was not expected");
-                }
-            }
-            Err(_err) => {
-                debug_println!("Error looking for naga: {}", _err);
-            }
-        }
-        thread::sleep(Duration::from_secs(1))
-    }
+    // Run indefinitely
+    run_loop_blocking(key_mapper)
 }
