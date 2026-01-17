@@ -1,6 +1,6 @@
 [package]
 name = "config-2014-naga"
-version = "0.2.4"
+version = "0.3.0"
 authors = ["Jeremy-Gstein <jeremy51b5@pm.me>"]
 edition = "2021"
 license = "MIT"
