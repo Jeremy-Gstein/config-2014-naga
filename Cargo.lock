@@ -45,6 +45,7 @@ name = "config-2014-naga"
 version = "0.2.4"
 dependencies = [
  "evdev-rs",
+ "libc",
  "serde",
  "toml",
  "uinput",

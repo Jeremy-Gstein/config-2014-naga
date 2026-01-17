@@ -25,3 +25,4 @@ evdev-rs = "0.2"
 uinput = "0.1"
 toml = "0.4"
 serde = { version = "1.0", features = ["derive"] }
+libc = "0.2.180"

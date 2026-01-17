@@ -1,6 +1,7 @@
 use evdev_rs::{Device, GrabMode, InputEvent, ReadStatus, ReadFlag};
 use std::fs::{read_dir, File};
 use std::error::Error;
+use std::os::unix::io::AsRawFd;
 
 pub struct Naga {
     device: Device,
@@ -32,6 +33,14 @@ impl Naga {
                 device
                     .grab(GrabMode::Grab)
                     .map_err(|e| format!("Could not grab device: {}", e))?;
+                
+                // Set the device to non-blocking mode
+                let fd = file_clone.as_raw_fd();
+                unsafe {
+                    let flags = libc::fcntl(fd, libc::F_GETFL);
+                    libc::fcntl(fd, libc::F_SETFL, flags | libc::O_NONBLOCK);
+                }
+                
                 return Ok(Naga {
                     device,
                     _file: file_clone,
@@ -43,7 +52,7 @@ impl Naga {
     }
 
     pub fn next_event(&self) -> Result<(ReadStatus, InputEvent), String> {
-        match self.device.next_event(ReadFlag::NORMAL | ReadFlag::BLOCKING) {
+        match self.device.next_event(ReadFlag::NORMAL) {
             Ok(res) => Ok(res),
             Err(errno) => Err(format!("Problem reading event: {}", errno)),
         }

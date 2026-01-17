@@ -7,10 +7,12 @@
 //!
 //! ```no_run
 //! use config_2014_naga::{key_map::KeyMapper, run_loop};
+//! use std::sync::{Arc, atomic::AtomicBool};
 //!
 //! # fn main() -> Result<(), Box<dyn std::error::Error>> {
 //! let key_mapper = KeyMapper::default();
-//! run_loop(key_mapper)?;
+//! let running = Arc::new(AtomicBool::new(true));
+//! run_loop(key_mapper, running)?;
 //! # Ok(())
 //! # }
 //! ```
@@ -36,7 +38,8 @@ use crate::key_map::KeyMapper;
 pub fn run_once(key_mapper: &KeyMapper) -> Result<(), Box<dyn Error>> {
     let mut device = input_device::create()?;
     let naga = naga::Naga::new()?;
-    event_mapper::map_events(key_mapper.clone(), naga, &mut device)?;
+    let running = Arc::new(AtomicBool::new(true));
+    event_mapper::map_events(key_mapper.clone(), naga, &mut device, running)?;
     Ok(())
 }
 
@@ -49,8 +52,9 @@ pub fn run_once(key_mapper: &KeyMapper) -> Result<(), Box<dyn Error>> {
 ///
 /// # Notes
 ///
-/// - Blocks forever unless `running` is set to false
-/// - CLI can pass `Arc::new(AtomicBool::new(true))` to mimic old behavior
+/// - Blocks until `running` is set to false
+/// - Will exit cleanly within ~50ms of setting running to false
+/// - CLI can pass `Arc::new(AtomicBool::new(true))` to run indefinitely
 pub fn run_loop(key_mapper: KeyMapper, running: Arc<AtomicBool>) -> Result<(), Box<dyn Error>> {
     let mut device = input_device::create()?;
 
@@ -60,7 +64,8 @@ pub fn run_loop(key_mapper: KeyMapper, running: Arc<AtomicBool>) -> Result<(), B
                 #[cfg(debug_assertions)]
                 eprintln!("Attached to naga");
 
-                if let Err(e) = event_mapper::map_events(key_mapper.clone(), dev, &mut device) {
+                // Pass running flag so map_events can exit cleanly
+                if let Err(e) = event_mapper::map_events(key_mapper.clone(), dev, &mut device, running.clone()) {
                     eprintln!("Error mapping events: {}", e);
                 }
             }
@@ -70,8 +75,14 @@ pub fn run_loop(key_mapper: KeyMapper, running: Arc<AtomicBool>) -> Result<(), B
             }
         }
 
-        thread::sleep(Duration::from_secs(1));
+        // Only sleep if still running (avoids delay on shutdown)
+        if running.load(Ordering::SeqCst) {
+            thread::sleep(Duration::from_secs(1));
+        }
     }
+
+    #[cfg(debug_assertions)]
+    eprintln!("run_loop exited cleanly");
 
     Ok(())
 }

@@ -4,6 +4,7 @@ use evdev_rs::enums::EventCode::{EV_KEY, EV_SYN};
 use evdev_rs::InputEvent;
 use uinput::device::Device;
 use uinput::Error;
+use std::sync::{Arc, atomic::{AtomicBool, Ordering}};
 
 macro_rules! debug_println {
     ($($arg:tt)*) => {
@@ -16,22 +17,43 @@ macro_rules! debug_println {
     };
 }
 
-
-
 pub fn map_events(
     key_mapper: KeyMapper,
     naga: Naga,
-    input_device: &mut Device,
-) -> Result<(), String> {
+    device: &mut Device,
+    running: Arc<AtomicBool>,
+) -> Result<(), Box<dyn std::error::Error>> {
     loop {
-        let (_read_status, input_event) = naga
-            .next_event()
-            .map_err(|e| format!("Event read error: {}", e))?;
+        // Check if we should stop
+        if !running.load(Ordering::SeqCst) {
+            #[cfg(debug_assertions)]
+            eprintln!("Detached from naga");
+            break;
+        }
 
-        process_event(key_mapper, input_event, input_device)
-            .map_err(|e| format!("Process event error: {}", e))?
+        // Try to read event (non-blocking now)
+        match naga.next_event() {
+            Ok((_read_status, input_event)) => {
+                process_event(key_mapper, input_event, device)
+                    .map_err(|e| format!("Process event error: {}", e))?;
+            }
+            Err(e) => {
+                // Check if it's a "would block" error (no data available)
+                if e.contains("Resource temporarily unavailable") || e.contains("EAGAIN") {
+                    // No data available, sleep briefly and check running flag again
+                    std::thread::sleep(std::time::Duration::from_millis(50));
+                    continue;
+                } else {
+                    // Got conditions for real error
+                    return Err(e.into());
+                }
+            }
+        }
     }
+    
+    Ok(())
 }
+
 fn process_event(
     key_mapper: KeyMapper,
     event: InputEvent,
