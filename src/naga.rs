@@ -22,10 +22,29 @@ impl Naga {
                 }
             };
 
-            let file = File::open(path.path())?;            
-            let file_clone = file.try_clone()?;
+            // Only check event devices (event0, event1, etc.)
+            let filename = path.file_name();
+            let filename_str = filename.to_string_lossy();
+            if !filename_str.starts_with("event") {
+                continue;
+            }
 
-            let mut device = Device::new_from_fd(file)?;
+            // Try to open the file, skip if we can't
+            let file = match File::open(path.path()) {
+                Ok(f) => f,
+                Err(_) => continue,
+            };
+            
+            let file_clone = match file.try_clone() {
+                Ok(f) => f,
+                Err(_) => continue,
+            };
+
+            // Try to create evdev device, skip if it fails
+            let mut device = match Device::new_from_fd(file) {
+                Ok(d) => d,
+                Err(_) => continue,
+            };
 
             if device.name().unwrap_or("").eq("Razer Razer Naga 2014")
                 && device.phys().unwrap_or("").ends_with("/input2")
